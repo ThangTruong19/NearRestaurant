@@ -64,8 +64,18 @@ public class ViewPlace extends AppCompatActivity {
             ratingBar.setVisibility(View.GONE);
         }
 
+        if(Common.currentResult.getName()!=null && !TextUtils.isEmpty(Common.currentResult.getName())){
+            place_name.setText(Common.currentResult.getName());
+        }else{
+            place_name.setVisibility(View.GONE);
+        }
+
         if(Common.currentResult.getOpening_hours()!=null){
-            opening_hours.setText("Open now : "+Common.currentResult.getOpening_hours().getOpen_now());
+            if(Common.currentResult.getOpening_hours().getOpen_now().equals("true")){
+                opening_hours.setText("Open now");
+            }else{
+                opening_hours.setText("Closed");
+            }
         }else{
             opening_hours.setVisibility(View.GONE);
         }

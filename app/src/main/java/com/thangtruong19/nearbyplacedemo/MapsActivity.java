@@ -159,7 +159,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,20));
 
             mMap.clear();
-            nearByPlace(address.getLatitude(),address.getLongitude(),"cafe");
+            nearByPlace(address.getLatitude(),address.getLongitude());
 
             MarkerOptions options=new MarkerOptions()
                     .position(latLng)
@@ -191,20 +191,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             final Place place=places.get(0);
 
-            /*try {
-                mPlace = new PlaceInfo(place.getName().toString(), place.getAddress().toString(), place.getPhoneNumber().toString()
-                        , place.getId(), place.getWebsiteUri(), place.getLatLng(), place.getRating());
-
-                Log.d(TAG, "onResult: place details: " + mPlace.toString());
-            }catch (NullPointerException e){
-                Log.e(TAG,"onResult: NullPointerException: "+e.getMessage());
-            }*/
-            /*mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mPlace.getLatLng(),20));
-            MarkerOptions options=new MarkerOptions()
-                    .position(mPlace.getLatLng())
-                    .title(place.getName().toString());
-
-            mMap.addMarker(options);*/
             moveCamera(place.getLatLng(),20,place);
             places.release();
 
@@ -214,8 +200,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
 
         mMap.clear();
-        nearByPlace(latLng.latitude,latLng.longitude,"cafe");
-        //mMap.setInfoWindowAdapter(new CustomWindowInfoAdapter(MapsActivity.this));
+        nearByPlace(latLng.latitude,latLng.longitude);
 
         if(place!=null){
             try{
@@ -233,9 +218,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void nearByPlace(double latitude,double longtitude,final String placeType) {
+    private void nearByPlace(double latitude,double longtitude) {
         //mMap.clear();
-        String url=getUrl(latitude,longtitude,placeType);
+        String url=getUrl(latitude,longtitude);
 
         mService.getNearByPlaces(url)
                 .enqueue(new Callback<MyPlaces>() {
@@ -258,22 +243,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 markerOptions.position(latLng);
                                 markerOptions.title(placeName);
 
-                                if(placeType.equals("Hospital")){
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_local_hospital));
-                                }else if(placeType.equals("cafe")){
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
-                                }else if(placeType.equals("School")){
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_school));
-                                }else if(placeType.equals("Market")){
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_shopping_cart));
-                                }
+                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant));
 
                                 markerOptions.snippet(String.valueOf(i));//Assign index for marker
                                 clickMarker();
                                 mMap.addMarker(markerOptions);
-
-                                //mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                //mMap.animateCamera(CameraUpdateFactory.zoomBy(10));
                             }
                         }
                     }
@@ -285,11 +259,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
     }
 
-    private String getUrl(double latitude, double longtitude, String placeType) {
+    private String getUrl(double latitude, double longtitude) {
         StringBuilder googlePlacesUrl=new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
         googlePlacesUrl.append("location="+latitude+","+longtitude);
         googlePlacesUrl.append("&radius="+10000);
-        googlePlacesUrl.append("&type="+placeType);
+        googlePlacesUrl.append("&type="+"cafe");
         googlePlacesUrl.append("&sensor=true");
         googlePlacesUrl.append("&key="+"AIzaSyBqa-GmqP0BruW9ghJnfrG-WyNKsKS9UTM");
         Log.d("MapActivity","getUrl: "+googlePlacesUrl.toString());
@@ -299,20 +273,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean checkLocationPermission() {
         Log.d("MapActivity","checkLocationPermission is called");
 
-        /*if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
-           if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
-               ActivityCompat.requestPermissions(this,new String[]{
-                       Manifest.permission.ACCESS_FINE_LOCATION
-               },MY_REQUEST_CODE);
-           }else{
-               ActivityCompat.requestPermissions(this,new String[]{
-                       Manifest.permission.ACCESS_FINE_LOCATION
-               },MY_REQUEST_CODE);
-           }
-           return false;
-        }else{
-            return true;
-        }*/
         if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},MY_REQUEST_CODE);
             return false;
@@ -325,20 +285,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d("MapActivity","onRequestPermissionsResult is called");
 
-        /*switch(requestCode){
-            case MY_REQUEST_CODE:
-                if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                    if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-                        if(mGoogleApiClient==null){
-                            buildGoogleApiClient();
-                            mMap.setMyLocationEnabled(true);
-                        }
-                    }
-                }else{
-                    Toast.makeText(this,"Permission denied",Toast.LENGTH_LONG).show();
-                }
-                break;
-        }*/
         switch (requestCode){
             case MY_REQUEST_CODE:
                 if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
@@ -365,30 +311,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        /*mMap = googleMap;
-
-        Log.d("MapActivity","onMapReady is called");
-        System.out.println("onMapReady is called");
-
-        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.M){
-            if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
-                buildGoogleApiClient();
-                mMap.setMyLocationEnabled(true);
-            }
-        }else{
-            buildGoogleApiClient();
-            mMap.setMyLocationEnabled(true);
-        }
-        //Make event click for marker
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Common.currentResult=currentPlace.getResults()[Integer.parseInt(marker.getSnippet())];
-                Intent intent=new Intent(MapsActivity.this,ViewPlace.class);
-                startActivity(intent);
-                return false;
-            }
-        });*/
         mMap = googleMap;
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -426,14 +348,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        /*mLocationRequest=new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        Log.d("MapActivity","onConnected is called");
-        if(ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,mLocationRequest,this);
-        }*/
         mLocationRequest= new LocationRequest();
 
         mLocationRequest.setInterval(1000);
@@ -457,28 +371,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(android.location.Location location) {
-        /*mLastLocation=location;
-        if(mMarker!=null){
-            mMarker.remove();
-        }
-
-        latitude=location.getLatitude();
-        longtitude=location.getLongitude();
-
-        LatLng latLng=new LatLng(latitude,longtitude);
-        MarkerOptions markerOptions=new MarkerOptions()
-                .position(latLng)
-                .title("Your position")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-
-        mMarker=mMap.addMarker(markerOptions);
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomBy(10));
-
-        if(mGoogleApiClient !=null){
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
-        }*/
         mLastLocation=location;
 
         if(mMarker!=null){
@@ -495,10 +387,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMarker=mMap.addMarker(markerOptions);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
-        nearByPlace(location.getLatitude(),location.getLongitude(),"cafe");
-        //searchNearByPlace(location.getLatitude(),location.getLongitude());
+        nearByPlace(location.getLatitude(),location.getLongitude());
 
-        //mMap.animateCamera(CameraUpdateFactory.zoomBy(10));
         if(mGoogleApiClient!=null){
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         }
